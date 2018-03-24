@@ -8,7 +8,6 @@ import yph.bean.TestBean;
 
 
 public class TestFastAuto {
-
     public static void main(String[] args) {
         FastAuto.run(Configure.get()
 //                .setAdb("adb")
