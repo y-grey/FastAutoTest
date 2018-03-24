@@ -1,0 +1,12 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'org.testng:testng:6.10'
+    compile 'io.appium:java-client:5.0.4'
+    compile project(':fastautotest')
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
