@@ -33,7 +33,8 @@ public class BaseTest {
     @Parameters({"node","appiumMainJs","port", "bootstrap_port", "chromedriver_port", "udid"})
     @BeforeSuite
     public void startServer(String node,String appiumMainJs,String port,String bootstrapPort, String chromeDriverPort,String udid) {
-        AppiumServer.start(node,appiumMainJs,port,bootstrapPort, chromeDriverPort, udid);
+        if(!appiumMainJs.equals(""))
+            AppiumServer.start(node,appiumMainJs,port,bootstrapPort, chromeDriverPort, udid);
     }
 
     @Parameters({"port", "platformName", "platformVersion", "deviceName", "appPackage", "appActivity","app"})
