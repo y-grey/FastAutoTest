@@ -2,6 +2,7 @@ package yph.base;
 
 
 import yph.utils.RuntimeUtil;
+import yph.utils.SleepUtil;
 
 public class AppiumServer {
 
@@ -15,10 +16,9 @@ public class AppiumServer {
                     RuntimeUtil.exec(cmd);
                 }
             }).start();
-            try {
-                Thread.sleep(40000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            SleepUtil.s(10000);
+            while(!RuntimeUtil.isProcessRunning("0.0.0.0:"+port)){
+                SleepUtil.s(2000);
             }
         }
     }

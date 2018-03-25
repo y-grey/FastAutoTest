@@ -14,6 +14,7 @@ import java.net.URL;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.AutomationName;
 import io.appium.java_client.remote.MobileCapabilityType;
+import yph.utils.SleepUtil;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
@@ -66,15 +67,7 @@ public class BaseTest {
 
     @BeforeClass
     public void findPage() {
-        sleep(2000);
+        SleepUtil.s(2000);
         PageFactory.initElements(driver, this);
-    }
-
-    protected void sleep(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }
