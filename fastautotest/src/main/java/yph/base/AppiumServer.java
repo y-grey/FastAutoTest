@@ -18,7 +18,7 @@ public class AppiumServer {
             }).start();
             SleepUtil.s(10000);
             while(!RuntimeUtil.isProcessRunning("0.0.0.0:"+port)){
-                SleepUtil.s(2000);
+                SleepUtil.s(4000);
             }
         }
     }
