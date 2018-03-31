@@ -18,7 +18,7 @@ public class TestMessage extends BaseTest {
     protected void addCap(DesiredCapabilities caps){//假如你想添加参数，可重写此方法添加
     }
     @Test
-    public void operation() {
+    public void test() {
         list.get(0).click();
     }
 }

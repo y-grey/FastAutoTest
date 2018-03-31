@@ -11,7 +11,7 @@ public class TestContacts extends BaseTest {
     @FindBy(id = "com.tencent.mobileqq:id/ivTitleBtnRightText")
     WebElement element;
     @Test
-    public void plus() {
+    public void test() {
         element.click();
     }
 }

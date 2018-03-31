@@ -3,6 +3,8 @@ package yph.base;
 import org.testng.TestListenerAdapter;
 import org.testng.TestNG;
 import org.testng.xml.XmlSuite;
+import org.uncommons.reportng.HTMLReporter;
+import org.uncommons.reportng.JUnitXMLReporter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,9 @@ public class FastAuto {
 
         testng.setXmlSuites(testList);
         testng.addListener(tla);
+        testng.setUseDefaultListeners(false);
+        testng.addListener(new HTMLReporter());
+        testng.addListener(new JUnitXMLReporter());
         testng.setSuiteThreadPoolSize(testList.size());
 
         testng.run();
