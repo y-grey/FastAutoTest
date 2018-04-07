@@ -32,8 +32,6 @@ public class FastAuto {
         testng.setSuiteThreadPoolSize(testList.size());
 
         testng.run();
-        System.out.println("ConfigurationFailures: "+tla.getConfigurationFailures());
-        System.out.println("getFailedTests()" + tla.getFailedTests());
     }
 
     private static List<XmlSuite> getTestList(Configure configure) {
