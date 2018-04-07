@@ -16,6 +16,6 @@ public class TestFastAuto {
                 .setAppPackage("com.tencent.mobileqq")
                 .setAppActivity("com.tencent.mobileqq.activity.SplashActivity")
                 .setAppiumMainJs("C:/Users/dell1/AppData/Local/Programs/appium-desktop/resources/app/node_modules/appium/build/lib/main.js")
-                .addTestBean(new TestBean().setName("testqq").setClasses(new Class[]{TestMessage.class, TestContacts.class})));
+                .addTestBean(new TestBean("testqq",new Class[]{TestMessage.class, TestContacts.class})));
     }
 }

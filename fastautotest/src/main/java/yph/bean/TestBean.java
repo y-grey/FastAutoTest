@@ -8,6 +8,14 @@ public class TestBean {
     private String name;
     private Class[] classes;
 
+    public TestBean() {
+    }
+
+    public TestBean(String name, Class[] classes) {
+        this.name = name;
+        this.classes = classes;
+    }
+
     public String getName() {
         return name;
     }
