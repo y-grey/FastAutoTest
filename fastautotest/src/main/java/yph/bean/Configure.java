@@ -15,6 +15,7 @@ public class Configure {
     private String appActivity = "";
     private String apkPath = "";
     private List<TestBean> testBeans = new ArrayList();
+    private static Configure configure = new Configure();
 
     public List<TestBean> getTestBeans() {
         return testBeans;
@@ -25,8 +26,10 @@ public class Configure {
         return this;
     }
 
+    private Configure(){}
+
     public static Configure get(){
-        return new Configure();
+        return configure;
     }
 
     public Configure setAdb(String adb) {
