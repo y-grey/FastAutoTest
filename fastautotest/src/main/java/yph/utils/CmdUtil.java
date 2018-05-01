@@ -100,11 +100,9 @@ public class CmdUtil {
         return running;
     }
 
-    public void killProcess(String keyMsg) {
+    public void killProcessIfExist(String keyMsg) {
         List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg);
-        if (results.isEmpty()) {
-            new Throwable("Can't find process " + keyMsg).printStackTrace();
-        } else {
+        if (!results.isEmpty()) {
             RuntimeUtil.exec("cmd.exe /c taskkill /f /pid " + results.get(0).substring(results.get(0).lastIndexOf(" ")));
         }
     }

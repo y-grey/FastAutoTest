@@ -12,6 +12,7 @@ public class AppiumServer {
     private static HashMap<String, Process> processMap = new HashMap<>();
 
     static void start(final String nodePath, final String appiumPath, final String port, final String bootstrapPort, final String chromeDriverPort, final String udid) {
+        CmdUtil.get().killProcessIfExist("0.0.0.0:" + port);
         new Thread(new Runnable() {
             @Override
             public void run() {
