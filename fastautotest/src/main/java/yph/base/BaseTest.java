@@ -2,6 +2,7 @@ package yph.base;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -22,14 +23,7 @@ import static io.appium.java_client.remote.AndroidMobileCapabilityType.NO_SIGN;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.RESET_KEYBOARD;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.UNICODE_KEYBOARD;
 
-/**
- * Created by chenyu on 2017/9/9.
- */
-
 public class BaseTest {
-
-    protected static AndroidDriver driver;
-    private DesiredCapabilities caps = new DesiredCapabilities();
 
     @Parameters({"node","appiumMainJs","port", "bootstrap_port", "chromedriver_port", "udid"})
     @BeforeSuite
@@ -42,7 +36,7 @@ public class BaseTest {
     @BeforeTest
     public void setUp(String appiumPort, String platformName, String platformVersion, String deviceName, String appPackage,
                       String appActivity,String app) throws MalformedURLException {
-        addCap(caps);
+        DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability("platformName", platformName);
         caps.setCapability("platformVersion", platformVersion);
         caps.setCapability("deviceName", deviceName);
@@ -53,20 +47,33 @@ public class BaseTest {
         caps.setCapability(UNICODE_KEYBOARD, true);
         caps.setCapability(RESET_KEYBOARD, true);
         caps.setCapability(NO_SIGN, true);//表示不重签名app在设置为true的情况下
-        if(Float.valueOf(platformVersion) >= 5)
+        if(Float.valueOf(platformVersion) >= 4.4)
             caps.setCapability (MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
-        driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
+        addCap(caps);
+        AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
+        mThreadLocal.set(driver);
     }
 
     protected void addCap(DesiredCapabilities caps){}
 
     @AfterTest
     public void tearDown() throws Exception {
-        driver.quit();
+        mThreadLocal.get().quit();
     }
 
+    @Parameters("port")
+    @AfterSuite
+    public void stopServer(String port) {
+        AppiumServer.stop(port);
+    }
+
+    public static ThreadLocal<AndroidDriver> mThreadLocal = new ThreadLocal<>();
+    protected AndroidDriver driver;
+
+    @Parameters("udid")
     @BeforeClass
-    public void findPage() {
+    public void findPage(String udid) {
+        driver = mThreadLocal.get();
         SleepUtil.s(2000);
         PageFactory.initElements(driver, this);
     }

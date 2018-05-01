@@ -14,6 +14,7 @@ public class Configure {
     private String appPackage = "";
     private String appActivity = "";
     private String apkPath = "";
+    private int retryCount = 0;
     private List<TestBean> testBeans = new ArrayList();
     private static Configure configure = new Configure();
 
@@ -87,4 +88,12 @@ public class Configure {
         return apkPath;
     }
 
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public Configure setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+        return this;
+    }
 }
