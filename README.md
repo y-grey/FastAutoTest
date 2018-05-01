@@ -7,7 +7,7 @@ FastAutoTest
  * 自动配置大部分信息，无需手动配置，摒弃TestNG群控时需要手工配置多个suite.xml的方式；
  * 自动启动Appium服务，无需手动打开，由自动化工作开始的时候通过代码打开；
  * 自动安装新版本软件，无需手动安装，由自动化工作开始前通过对比版本进行软件更新；
- * 内部DefaultReport已替换为  [ReportNG](https://github.com/dwdyer/reportng)，更清晰地展示测试结果。
+ * 内部DefaultReport已替换为修改版的  [ReportNG](https://github.com/dwdyer/reportng)，更清晰地展示测试结果。
 
 使用
 --------
@@ -45,7 +45,6 @@ __2、初始化__
 public class TestFastAuto {
     public static void main(String[] args) {
         FastAuto.run(Configure.get()
-                .setAdb("adb")//adb路径
                 .setNode("node")//node路径
                 .setApkPath("C:/Users/dell1/android-studio/workspace/workspace-2018/AppiumAutoTest/app/apk/app-debug.apk")
                 .setAppPackage("com.tencent.mobileqq")
@@ -56,7 +55,7 @@ public class TestFastAuto {
 }
 ```
 _说明：当你有多个Test可以通过addTestBean方法添加，每个Test通过setName方法设置名字，通过setClasses方法设置Class.
-      如果你配置好了adb和node环境，并且待测Apk已经安装，那么初始化可以省略这些步骤，如下_
+      如果你配置好了node环境，并且待测Apk已经安装，那么初始化可以省略这些步骤，如下_
 ```java
         FastAuto.run(Configure.get()
                 .setAppPackage("com.tencent.mobileqq")
