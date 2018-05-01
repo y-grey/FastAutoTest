@@ -14,26 +14,26 @@ public class RuntimeUtil {
     private static String filter[] = new String[]{"List of devices attached", "offline", "adb server version",
             "daemon not running", "adb server is out of date", "daemon started successfully", "not found", "Failed to"};
 
-    public static List<String> exec(String cmd) {
-        System.out.println("exec " + cmd);
+    public static List<String> exec(String cmd, String log) {
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(cmd);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        List<String> list = exec(process);
+        List<String> list = exec(process, log);
         return list;
     }
 
-    public static List<String> exec(Process process) {
+    public static List<String> exec(Process process, String log) {
+        if (log != null && !log.equals(""))
+            System.out.println(log);
         List<String> list = new ArrayList<>();
         try {
             InputStream inputStream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
                 if (filter(line)) {
                     list.add(line);
                 }
@@ -61,8 +61,9 @@ public class RuntimeUtil {
         return b;
     }
 
-    public static void execAsync(String cmd, final AsyncInvoke syncInvoke) {
-        new Timer().schedule(new TimerTask() {
+    public static Timer execAsync(String cmd, final AsyncInvoke syncInvoke) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -85,7 +86,8 @@ public class RuntimeUtil {
                     System.out.println("出错：" + e.getMessage());
                 }
             }
-        }, 2000, 1000);
+        }, 0, 1000);
+        return timer;
     }
 
     interface AsyncInvoke {

@@ -10,7 +10,6 @@ import yph.bean.TestBean;
 public class TestFastAuto {
     public static void main(String[] args) {
         FastAuto.run(Configure.get()
-//                .setAdb("adb")
 //                .setNode("node")
 //                .setApkPath("C:/Users/dell1/android-studio/workspace/workspace-2018/AppiumAutoTest/app/apk/app-debug.apk")
                 .setRetryCount(3)

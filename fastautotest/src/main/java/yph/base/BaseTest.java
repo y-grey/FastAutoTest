@@ -52,12 +52,17 @@ public class BaseTest {
         addCap(caps);
         AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
         mThreadLocal.set(driver);
+        perforMonitor = new PerforMonitor();
+        perforMonitor.start(deviceName);
     }
+
+    private PerforMonitor perforMonitor;
 
     protected void addCap(DesiredCapabilities caps){}
 
     @AfterTest
     public void tearDown() throws Exception {
+        perforMonitor.stop();
         mThreadLocal.get().quit();
     }
 

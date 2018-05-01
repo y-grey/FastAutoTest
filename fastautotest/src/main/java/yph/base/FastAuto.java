@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Map;
 
 import yph.bean.Configure;
-import yph.listener.TestResultListener;
 import yph.listener.AnnotationListener;
+import yph.listener.TestResultListener;
 import yph.utils.ApkUtil;
 import yph.utils.CmdUtil;
 import yph.utils.XmlSuiteBuilder;
 
 public class FastAuto {
     public static void run(Configure configure) {
-        CmdUtil.get().init(configure.getAdb(),configure.getAppPackage());
+        CmdUtil.get().init(configure.getAppPackage());
         List<XmlSuite> testList = getTestList(configure);
         if(testList.isEmpty())return;
         System.setProperty("org.uncommons.reportng.escape-output", "false");
@@ -40,7 +40,6 @@ public class FastAuto {
         List<String> devices = CmdUtil.get().getDevices();
         for (int i = 0; i < devices.size(); i++) {
             String deviceName = devices.get(i);
-//            CmdUtil.get().getCpu(deviceName);
 //            checkUpdate(deviceName,configure);
             testList.add(new XmlSuiteBuilder(i,
                     deviceName,

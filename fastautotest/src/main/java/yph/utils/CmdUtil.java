@@ -2,6 +2,9 @@ package yph.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+
+import yph.bean.Device;
 
 /**
  * Created by _yph on 2018/3/15 0015.
@@ -20,17 +23,17 @@ public class CmdUtil {
         static CmdUtil instance = new CmdUtil();
     }
 
-    private String adb;
+    private final String adb = "fastautotest/adb/adb";
     private String pkgName;
 
-    public void init(String adb, String pkgName) {
-        this.adb = adb;
+    public void init(String pkgName) {
         this.pkgName = pkgName;
     }
 
     public List<String> getDevices() {
         List<String> devices = new ArrayList<>();
-        List<String> results = RuntimeUtil.exec(adb + " devices");
+        List<String> results = RuntimeUtil.exec(adb + " devices", "Get Devices");
+        System.out.println(results);
         if (results.size() > 0) {
             for (int i = 0; i < results.size(); i++) {
                 String deviceName = results.get(i);
@@ -44,16 +47,17 @@ public class CmdUtil {
     }
 
     public String getPlatformVersion(String deviceName) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell getprop ro.build.version.release");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell getprop ro.build.version.release", "Get " + deviceName + " Platform Version");
+        System.out.println(results);
         return results.get(0);
     }
 
     public void installApk(String deviceName, String apkPath) {
-        RuntimeUtil.exec(adb + " -s " + deviceName + " install " + apkPath);
+        RuntimeUtil.exec(adb + " -s " + deviceName + " install " + apkPath, "Install App");
     }
 
     public int getVersionCode(String deviceName) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell dumpsys package " + pkgName + " | findstr versionCode");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell dumpsys package " + pkgName + " | findstr versionCode", "");
         String versionCode = "0";
         if (results.size() > 0) {
             versionCode = results.get(0);
@@ -62,36 +66,44 @@ public class CmdUtil {
         return Integer.valueOf(versionCode);
     }
 
-    public String getLaunchActivity(String deviceName) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell getprop ro.build.version.release");
-        return results.get(0);
-    }
-
-    public void getCpu(String deviceName) {
-        RuntimeUtil.execAsync(adb + " -s " + deviceName + " shell top -n 1 -s  cpu|grep " + pkgName,
+    public Timer startPerforMonitor(String deviceName) {
+        return RuntimeUtil.execAsync(adb + " -s " + deviceName + " shell top -n 1 -s  cpu|grep " + pkgName,
                 new RuntimeUtil.AsyncInvoke() {
                     @Override
                     public void invoke(String cpu) {
-                        if(!cpu.contains(pkgName+":")) {
-                            System.out.println("cpu " + cpu);
+                        if (!cpu.contains(pkgName + ":")) {
                             cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%") + 1);
-                            System.out.println("cpu " + cpu);
-                            getMem(deviceName);
+                            getMem(deviceName, new Device(deviceName).setCpu(cpu));
                         }
                     }
                 });
     }
-    public void getMem(String deviceName) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell dumpsys meminfo " + pkgName+"|grep TOTAL:");
+
+    public void getMem(String deviceName, Device device) {
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceName + " shell dumpsys meminfo " + pkgName + "|grep TOTAL ", "");
         if (results.size() > 0) {
-            String mem = results.get(0);
-            mem = mem.substring(mem.indexOf(":")+1, mem.lastIndexOf("TOTAL")).trim();
-            System.out.println("men " + mem);
+            String mem = results.get(0).replace("TOTAL","");
+            String menTem = "";
+            char[] chars = mem.toCharArray();
+            boolean b = false;
+            for(char c : chars){
+                if(c == ' '){
+                    if(b){
+                        break;
+                    }
+                }else {
+                    menTem = menTem + c;
+                    b = true;
+                }
+            }
+            device.setMem(menTem);
         }
+        System.out.println("["+deviceName + " cpu:" + device.getCpu() + "  men:" + device.getMem()+"]");
     }
+
     public boolean isProcessRunning(String keyMsg) {
         boolean running;
-        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg);
+        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg, "");
         if (results.isEmpty()) {
             running = false;
         } else {
@@ -101,9 +113,9 @@ public class CmdUtil {
     }
 
     public void killProcessIfExist(String keyMsg) {
-        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg);
+        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg, "");
         if (!results.isEmpty()) {
-            RuntimeUtil.exec("cmd.exe /c taskkill /f /pid " + results.get(0).substring(results.get(0).lastIndexOf(" ")));
+            RuntimeUtil.exec("cmd.exe /c taskkill /f /pid " + results.get(0).substring(results.get(0).lastIndexOf(" ")), "");
         }
     }
 }

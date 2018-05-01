@@ -21,7 +21,7 @@ public class AppiumServer {
                 try {
                     Process process = Runtime.getRuntime().exec(cmd);
                     processMap.put(port, process);
-                    RuntimeUtil.exec(process);
+                    RuntimeUtil.exec(process,"AppiumServer("+port+") Starting...");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -31,6 +31,7 @@ public class AppiumServer {
         while (!CmdUtil.get().isProcessRunning("0.0.0.0:" + port)) {
             SleepUtil.s(4000);
         }
+        System.out.println("AppiumServer("+port+") Start Successful");
     }
 
     static void stop(String port) {

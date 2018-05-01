@@ -8,7 +8,6 @@ import java.util.List;
  */
 
 public class Configure {
-    private String adb = "adb";
     private String node = "node";
     private String appiumMainJs = "";
     private String appPackage = "";
@@ -31,11 +30,6 @@ public class Configure {
 
     public static Configure get(){
         return configure;
-    }
-
-    public Configure setAdb(String adb) {
-        this.adb = adb;
-        return this;
     }
 
     public Configure setNode(String node) {
@@ -63,10 +57,6 @@ public class Configure {
         return this;
     }
 
-
-    public String getAdb() {
-        return adb;
-    }
 
     public String getNode() {
         return node;
