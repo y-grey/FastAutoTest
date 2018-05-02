@@ -32,10 +32,10 @@ public class BaseTest {
             AppiumServer.start(node,appiumMainJs,port,bootstrapPort, chromeDriverPort, udid);
     }
 
-    @Parameters({"port", "platformName", "platformVersion", "deviceName", "appPackage", "appActivity","app"})
+    @Parameters({"port", "platformName", "platformVersion", "deviceName", "appPackage", "appActivity","app","udid"})
     @BeforeTest
     public void setUp(String appiumPort, String platformName, String platformVersion, String deviceName, String appPackage,
-                      String appActivity,String app) throws MalformedURLException {
+                      String appActivity,String app,String udid) throws MalformedURLException {
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability("platformName", platformName);
         caps.setCapability("platformVersion", platformVersion);
@@ -53,7 +53,7 @@ public class BaseTest {
         AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
         mThreadLocal.set(driver);
         perforMonitor = new PerforMonitor();
-        perforMonitor.start(deviceName);
+        perforMonitor.start(deviceName,udid,appPackage,Thread.currentThread());
     }
 
     private PerforMonitor perforMonitor;
@@ -75,9 +75,8 @@ public class BaseTest {
     public static ThreadLocal<AndroidDriver> mThreadLocal = new ThreadLocal<>();
     protected AndroidDriver driver;
 
-    @Parameters("udid")
     @BeforeClass
-    public void findPage(String udid) {
+    public void findPage() {
         driver = mThreadLocal.get();
         SleepUtil.s(2000);
         PageFactory.initElements(driver, this);

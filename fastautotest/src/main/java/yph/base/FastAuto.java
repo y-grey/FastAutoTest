@@ -39,11 +39,12 @@ public class FastAuto {
         List<XmlSuite> testList = new ArrayList<>();
         List<String> devices = CmdUtil.get().getDevices();
         for (int i = 0; i < devices.size(); i++) {
-            String deviceName = devices.get(i);
+            String deviceUdid = devices.get(i);
 //            checkUpdate(deviceName,configure);
             testList.add(new XmlSuiteBuilder(i,
-                    deviceName,
-                    CmdUtil.get().getPlatformVersion(deviceName),
+                    deviceUdid,
+                    CmdUtil.get().getDeviceName(deviceUdid),
+                    CmdUtil.get().getPlatformVersion(deviceUdid),
                     configure)
                     .build());
         }

@@ -23,14 +23,14 @@ public class XmlSuiteBuilder {
     Map<String, String> parameters = new HashMap<>();
     XmlSuite xmlSuite = new XmlSuite();
 
-    public XmlSuiteBuilder(int index, String deviceName, String platformVersion, Configure configure) {
+    public XmlSuiteBuilder(int index, String deviceUdid, String deviceName, String platformVersion, Configure configure) {
         parameters.put("port",(4723+2*index)+"");
         parameters.put("bootstrap_port",(4724+2*index)+"");
         parameters.put("chromedriver_port",(9515+index)+"");
-        parameters.put("udid",deviceName);
+        parameters.put("udid", deviceUdid);
         parameters.put("platformName","Android");
         parameters.put("platformVersion",platformVersion);
-        parameters.put("deviceName",deviceName);
+        parameters.put("deviceName", deviceName);
         parameters.put("node", configure.getNode());
         parameters.put("appiumMainJs", configure.getAppiumMainJs());
         parameters.put("appPackage", configure.getAppPackage());

@@ -90,7 +90,7 @@ public class RuntimeUtil {
         return timer;
     }
 
-    interface AsyncInvoke {
+    public interface AsyncInvoke {
         void invoke(String line);
     }
 }

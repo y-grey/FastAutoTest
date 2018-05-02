@@ -12,6 +12,7 @@ import java.util.List;
 import yph.annotations.Authod;
 import yph.base.BaseTest;
 import yph.listener.TestRetryListener;
+import yph.utils.SleepUtil;
 
 
 public class TestMessage extends BaseTest{
@@ -24,6 +25,7 @@ public class TestMessage extends BaseTest{
 
     @Test(description = "测试消息")
     public void test() {
+        SleepUtil.s(2000);
         list.get(0).click();
     }
 

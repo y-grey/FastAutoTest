@@ -8,6 +8,16 @@ public class Device {
     private String name;
     private String cpu;
     private String mem;
+    private String curStack;
+
+    public String getCurStack() {
+        return curStack;
+    }
+
+    public Device setCurStack(String curStack) {
+        this.curStack = curStack;
+        return this;
+    }
 
     public Device() {
     }
