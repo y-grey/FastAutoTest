@@ -7,6 +7,8 @@ FastAutoTest
  * 自动配置大部分信息，无需手动配置，摒弃TestNG群控时需要手工配置多个suite.xml的方式；
  * 自动启动Appium服务，无需手动打开，由自动化工作开始的时候通过代码打开；
  * 自动安装新版本软件，无需手动安装，由自动化工作开始前通过对比版本进行软件更新；
+ * 自动采集性能数据（CPU，内存，流量）和对应执行栈，并在报告中展示；
+ * 自动进行卡顿监测，内存泄漏监测，crash监测，收集日志和对应执行栈，并在报告中展示；
  * 内部DefaultReport已替换为修改版的  [ReportNG](https://github.com/dwdyer/reportng)，更清晰地展示测试结果。
 
 使用
@@ -54,8 +56,10 @@ public class TestFastAuto {
     }
 }
 ```
-_说明：当你有多个Test可以通过addTestBean方法添加，每个Test通过setName方法设置名字，通过setClasses方法设置Class.
+_说明：当你有多个Test可以通过addTestBean方法添加，每个Test通过setName方法设置名字，通过setClasses方法设置Class，
+       每个Test原则上是执行前要重启应用，执行完成后关闭应用，但你可以通过调用TestBean的notRestart()方法来实现不重启.
       如果你配置好了node环境，并且待测Apk已经安装，那么初始化可以省略这些步骤，如下_
+      
 ```java
         FastAuto.run(Configure.get()
                 .setAppPackage("com.tencent.mobileqq")
@@ -79,6 +83,9 @@ public class TestMessage extends BaseTest {
 ```
 _说明：编写Test类继承自BaseTest,然后写一个方法，添加@Test注解后就可以编写逻辑代码了.
 假如你想添加参数，可重写addCap方法添加,但一般不需要_
+
+__4、结果展示__
+待传图...
 
 Detail
 --------
