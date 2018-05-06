@@ -1,10 +1,10 @@
 package yph.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import yph.bean.Configure;
 import yph.bean.TestBean;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by _yph on 2018/5/6 0006.
@@ -28,21 +28,16 @@ public class RestartTestHelper {
 
     public static boolean isCurTestRestart() {
         List<Boolean> restartTestList = getRestartTestList();
-        if(restartTestList.isEmpty())return true;
+        if(restartTestList.isEmpty()) return true;
         boolean isCurTestRestart = restartTestList.get(0);
         restartTestList.remove(0);
-        System.out.println("isCurTestRestart  "+isCurTestRestart);
         return isCurTestRestart;
     }
 
     public static boolean isNextTestRestart() {
         List<Boolean> restartTestList = getRestartTestList();
-        if(restartTestList.isEmpty()){
-            System.out.println("isNextTestRestart  true");
-            return true;
-        }
+        if(restartTestList.isEmpty()) return true;
         boolean isCurTestRestart = restartTestList.get(0);
-        System.out.println("isNextTestRestart  "+isCurTestRestart);
         return isCurTestRestart;
     }
 }
