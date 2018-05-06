@@ -1,27 +1,18 @@
 package yph.base;
 
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.AutomationName;
+import io.appium.java_client.remote.MobileCapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Parameters;
+import org.testng.annotations.*;
+import yph.helper.RestartTestHelper;
+import yph.utils.SleepUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AutomationName;
-import io.appium.java_client.remote.MobileCapabilityType;
-import yph.utils.SleepUtil;
-
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.NO_SIGN;
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.RESET_KEYBOARD;
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.UNICODE_KEYBOARD;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.*;
 
 public class BaseTest {
 
@@ -36,6 +27,7 @@ public class BaseTest {
     @BeforeTest
     public void setUp(String appiumPort, String platformName, String platformVersion, String deviceName, String appPackage,
                       String appActivity,String app,String udid) throws MalformedURLException {
+        if(!RestartTestHelper.isCurTestRestart())return;
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability("platformName", platformName);
         caps.setCapability("platformVersion", platformVersion);
@@ -51,19 +43,19 @@ public class BaseTest {
             caps.setCapability (MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
         addCap(caps);
         AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
-        mThreadLocal.set(driver);
-        perforMonitor = new PerforMonitor();
+        AndroidDriverTl.set(driver);
+        PerforMonitor perforMonitor = new PerforMonitor();
         perforMonitor.start(deviceName,udid,appPackage,Thread.currentThread());
+        perforMonitorTl.set(perforMonitor);
     }
-
-    private PerforMonitor perforMonitor;
 
     protected void addCap(DesiredCapabilities caps){}
 
     @AfterTest
     public void tearDown() throws Exception {
-        perforMonitor.stop();
-        mThreadLocal.get().quit();
+        if(!RestartTestHelper.isNextTestRestart())return;
+        perforMonitorTl.get().stop();
+        AndroidDriverTl.get().quit();
     }
 
     @Parameters("port")
@@ -72,12 +64,13 @@ public class BaseTest {
         AppiumServer.stop(port);
     }
 
-    public static ThreadLocal<AndroidDriver> mThreadLocal = new ThreadLocal<>();
+    public static ThreadLocal<AndroidDriver> AndroidDriverTl = new ThreadLocal<>();
+    private static ThreadLocal<PerforMonitor> perforMonitorTl = new ThreadLocal<>();
     protected AndroidDriver driver;
 
     @BeforeClass
     public void findPage() {
-        driver = mThreadLocal.get();
+        driver = AndroidDriverTl.get();
         SleepUtil.s(2000);
         PageFactory.initElements(driver, this);
     }

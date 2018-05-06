@@ -1,4 +1,4 @@
-package yph.utils;
+package yph.helper;
 
 import org.testng.xml.XmlClass;
 import org.testng.xml.XmlSuite;

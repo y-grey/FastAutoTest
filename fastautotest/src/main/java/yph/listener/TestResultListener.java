@@ -89,7 +89,7 @@ public class TestResultListener extends TestListenerAdapter {
                 .toString();
         File destFile = new File(filePath);
         try {
-            File screenshot = BaseTest.mThreadLocal.get().getScreenshotAs(OutputType.FILE);
+            File screenshot = BaseTest.AndroidDriverTl.get().getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(screenshot, destFile);
         } catch (Exception e) {
             Reporter.log("截图失败："+e.toString());

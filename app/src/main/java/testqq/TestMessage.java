@@ -5,6 +5,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.List;
 import yph.annotations.Authod;
 import yph.base.BaseTest;
 import yph.listener.TestRetryListener;
-import yph.utils.SleepUtil;
 
 
 public class TestMessage extends BaseTest{
@@ -25,7 +25,7 @@ public class TestMessage extends BaseTest{
 
     @Test(description = "测试消息")
     public void test() {
-        SleepUtil.s(2000);
+        Reporter.log("测试消息开始");
         list.get(0).click();
     }
 

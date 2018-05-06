@@ -14,7 +14,7 @@ import yph.listener.AnnotationListener;
 import yph.listener.TestResultListener;
 import yph.utils.ApkUtil;
 import yph.utils.CmdUtil;
-import yph.utils.XmlSuiteBuilder;
+import yph.helper.XmlSuiteBuilder;
 
 public class FastAuto {
     public static void run(Configure configure) {

@@ -7,6 +7,7 @@ package yph.bean;
 public class TestBean {
     private String name;
     private Class[] classes;
+    private boolean restart = true;
 
     public TestBean() {
     }
@@ -31,6 +32,15 @@ public class TestBean {
 
     public TestBean setClasses(Class[] classes) {
         this.classes = classes;
+        return this;
+    }
+
+    public boolean isRestart() {
+        return restart;
+    }
+
+    public TestBean notRestart() {
+        restart = false;
         return this;
     }
 }

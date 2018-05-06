@@ -73,8 +73,19 @@ public class CmdUtil {
     public Timer getCpu(String deviceUdid, RuntimeUtil.AsyncInvoke asyncInvoke) {
         return RuntimeUtil.execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName,asyncInvoke);
     }
-
-    public String getMem(String deviceUdid) {
+    public long getTraffic(String deviceUdid,int uid) {
+        long rcvTraffic = -1, sndTraffic = -1;
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/"+uid+"/tcp_rcv","");
+        if(!results.isEmpty()){
+            rcvTraffic = Long.parseLong(results.get(0));
+        }
+        results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/"+uid+"/tcp_snd","");
+        if(!results.isEmpty()){
+            sndTraffic = Long.parseLong(results.get(0));
+        }
+        return rcvTraffic + sndTraffic < 0 ? -1 : rcvTraffic + sndTraffic;
+    }
+    public int getMem(String deviceUdid) {
         List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys meminfo " + pkgName + "|grep TOTAL ", "");
         String menTem = "";
         if (results.size() > 0) {
@@ -91,8 +102,9 @@ public class CmdUtil {
                     b = true;
                 }
             }
+            return Integer.valueOf(menTem.trim())/1000;
         }
-        return menTem;
+        return -1;
     }
 
     public boolean isProcessRunning(String keyMsg) {
