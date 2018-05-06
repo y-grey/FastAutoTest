@@ -41,8 +41,8 @@ public class PerforMonitor{
                           .setTraffic(traffic)
                           .setCurStack(stackString);
 
-//                    System.out.println("[" + device.getName() + " cpu:" + device.getCpuList() + "%  men:" + device.getMemList()
-//                            + "MB  traffic:" + device.getTrafficList() + "KB  curStack:" + device.getCurStackList() + "]");
+                    System.out.println("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
+                            + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
                 }
             }
         });
