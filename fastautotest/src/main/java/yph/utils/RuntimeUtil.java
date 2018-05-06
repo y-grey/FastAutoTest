@@ -62,7 +62,7 @@ public class RuntimeUtil {
         return b;
     }
 
-    public static Timer execAsync(String cmd, final AsyncInvoke syncInvoke) {
+    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override

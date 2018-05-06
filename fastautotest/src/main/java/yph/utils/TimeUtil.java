@@ -30,67 +30,12 @@ public class TimeUtil {
         cal.add(i, 1);
         return new SimpleDateFormat(format).format(cal.getTime());
     }
-    public static String timeParse(long oldtime) {
-        String time;
-        long Default_Minute = 30 * 60;
-        long Default_Hour = 12 * 60 * 60;
-        long Default_Day = 7 * 24 * 60 * 60;
-
-        long tsLong = System.currentTimeMillis() / 1000;
-        long interval = tsLong - oldtime;
-
-        System.out.println("___" + (tsLong - oldtime));
-        if (interval > 0 && interval <= Default_Minute) {
-            System.out.println("____分钟" + interval / 60);
-            time = (interval / 60 + "分钟前");
-        } else if (interval > Default_Minute && interval <= Default_Hour) {
-            System.out.println("____小时" + interval / 60 / 60);
-            time = (interval / 60 / 60 + "小时前");
-        } else if (interval > Default_Hour && interval <= Default_Day) {
-            System.out.println("____天" + interval / 60 / 60 / 24);
-            time = (interval / 60 / 60 / 24 + "天前");
-        } else {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
-            time = sdf.format(new Date(oldtime * 1000));
-            System.out.println("____直接使用日期标识:" + time);
-        }
-        if (time.equals("0天前"))
-            time = "1天前";
-        return time;
-    }
 
     public static String timeP(long oldtime) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(new Date(oldtime));
     }
 
-    /**
-     * 将一个时间戳转换成提示性时间字符串，如刚刚，1秒前
-     *
-     * @param timeStamp
-     * @return
-     */
-    public static String convertTimeToFormat(long timeStamp) {
-        long curTime = System.currentTimeMillis() / (long) 1000;
-        long time = curTime - timeStamp;
-
-        if (time < 60 && time >= 0) {
-            return "刚刚";
-        } else if (time >= 60 && time < 3600) {
-            return time / 60 + "分钟前";
-        } else if (time >= 3600 && time < 3600 * 24) {
-            return time / 3600 + "小时前";
-        } else if (time >= 3600 * 24 && time < 3600 * 24 * 30) {
-            return time / 3600 / 24 + "天前";
-        } else if (time >= 3600 * 24 * 30 && time < 3600 * 24 * 30 * 12) {
-            return time / 3600 / 24 / 30 + "个月前";
-        } else if (time >= 3600 * 24 * 30 * 12) {
-            return time / 3600 / 24 / 30 / 12 + "年前";
-        } else {
-            return "刚刚——————";
-        }
-    }
-    //根据日期取得星期几
     public static String getWeek(String str){
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
         String week = sdf.format(parseDate(str,"yyyy-MM-dd HH:mm"));
