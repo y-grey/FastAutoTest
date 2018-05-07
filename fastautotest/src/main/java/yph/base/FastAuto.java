@@ -4,23 +4,21 @@ import org.testng.TestNG;
 import org.testng.reporters.JUnitXMLReporter;
 import org.testng.xml.XmlSuite;
 import org.uncommons.reportng.HTMLReporter;
+import yph.bean.Configure;
+import yph.helper.XmlSuiteBuilder;
+import yph.listener.AnnotationListener;
+import yph.listener.TestResultListener;
+import yph.utils.ApkUtil;
+import yph.utils.CmdUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import yph.bean.Configure;
-import yph.listener.AnnotationListener;
-import yph.listener.TestResultListener;
-import yph.utils.ApkUtil;
-import yph.utils.CmdUtil;
-import yph.helper.XmlSuiteBuilder;
-
 public class FastAuto {
     public static void run(Configure configure) {
         CmdUtil.get().init(configure.getAppPackage());
         List<XmlSuite> testList = getTestList(configure);
-        if(testList.isEmpty())return;
         System.setProperty("org.uncommons.reportng.escape-output", "false");
         TestNG testng = new TestNG();
 

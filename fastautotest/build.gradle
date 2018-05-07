@@ -9,7 +9,7 @@ publish {
     artifactId = 'fastautotest'
     userOrg = 'yph'
     groupId = 'yph'
-    publishVersion = '1.2.0'
+    publishVersion = '1.3.3'
     desc = 'FastAutoTest'
     website = 'https://github.com/qq542391099/FastAutoTest'
     licences = ['Apache-2.0']

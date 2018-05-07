@@ -21,7 +21,7 @@ public class CmdUtil {
         static CmdUtil instance = new CmdUtil();
     }
 
-    private final String adb = "fastautotest/adb/adb";
+    private final String adb = SystemEnvUtil.getCopyAdb();
     private String pkgName;
 
     public void init(String pkgName) {
@@ -39,7 +39,7 @@ public class CmdUtil {
                 devices.add(deviceUdid);
             }
         } else {
-            new Throwable("Can't find devices").printStackTrace();
+            throw new IllegalStateException("Can't find devices");
         }
         return devices;
     }
