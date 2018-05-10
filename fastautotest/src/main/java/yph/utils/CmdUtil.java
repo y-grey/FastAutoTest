@@ -1,8 +1,12 @@
 package yph.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
+
+import static yph.utils.RuntimeUtil.execAsync;
 
 /**
  * Created by _yph on 2018/3/15 0015.
@@ -22,6 +26,7 @@ public class CmdUtil {
     }
 
     private final String adb = SystemEnvUtil.getCopyAdb();
+    //    private final String adb = SystemEnvUtil.getResCopyAdb();
     private String pkgName;
 
     public void init(String pkgName) {
@@ -65,46 +70,95 @@ public class CmdUtil {
     }
 
     public String getDeviceName(String deviceUdid) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell getprop ro.product.model", "Get "+deviceUdid+" Device`s Name");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell getprop ro.product.model", "Get " + deviceUdid + " Device`s Name");
         System.out.println(results);
         return results.get(0);
     }
 
     public Timer getCpu(String deviceUdid, RuntimeUtil.AsyncInvoke asyncInvoke) {
-        return RuntimeUtil.execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName,asyncInvoke);
+        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1000);
     }
-    public long getTraffic(String deviceUdid,int uid) {
+
+    public long getTraffic(String deviceUdid, int uid) {
         long rcvTraffic = -1, sndTraffic = -1;
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/"+uid+"/tcp_rcv","");
-        if(!results.isEmpty()){
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_rcv", "");
+        if (!results.isEmpty()) {
             rcvTraffic = Long.parseLong(results.get(0));
         }
-        results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/"+uid+"/tcp_snd","");
-        if(!results.isEmpty()){
+        results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_snd", "");
+        if (!results.isEmpty()) {
             sndTraffic = Long.parseLong(results.get(0));
         }
         return rcvTraffic + sndTraffic < 0 ? -1 : rcvTraffic + sndTraffic;
     }
+
     public int getMem(String deviceUdid) {
         List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys meminfo " + pkgName + "|grep TOTAL ", "");
-        String menTem = "";
         if (results.size() > 0) {
-            String mem = results.get(0).replace("TOTAL","");
-            char[] chars = mem.toCharArray();
-            boolean b = false;
-            for(char c : chars){
-                if(c == ' '){
-                    if(b){
-                        break;
-                    }
-                }else {
-                    menTem = menTem + c;
-                    b = true;
-                }
-            }
-            return Integer.valueOf(menTem.trim())/1000;
+            String mem = results.get(0).replace("TOTAL", "");
+            return Integer.valueOf(getWordBetweenBlank(mem)) / 1000;
         }
         return -1;
+    }
+
+    public List<String> getCrashLog(String deviceUdid, int pid) {
+        List<String> results = new ArrayList<>();
+        try {
+            final Process process = Runtime.getRuntime().exec(adb + " -s " + deviceUdid + " shell logcat -v process *:E | grep '" + pid + "'");
+            final Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    process.destroy();
+                    timer.cancel();
+                }
+            },2000);
+            results.addAll(RuntimeUtil.exec(process,""));
+            CmdUtil.get().clearLog(deviceUdid);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    public void clearLog(String deviceUdid) {
+        RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell logcat -c", "");
+    }
+
+    public String getAnrLog(String deviceUdid, String pkgname) {
+        String AnrLog = "";
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep -B 1 'Cmd line: " + pkgname +"'", "");
+        if (results.size() > 0) {
+            String time =  results.get(0);
+            time = time.substring(time.indexOf("at")+3,time.lastIndexOf(":")+3);
+            long l = TimeUtil.timeSubtract(time);
+            if(l!=-1 && l<2){//2分钟之内的anr
+                results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep 'at com.'|grep -v 'com.android'", "");
+                for(String s : results){
+                    if(!AnrLog.contains(s)){
+                        AnrLog = AnrLog+s+"\n";
+                    }
+                }
+            }
+        }
+        return AnrLog;
+    }
+
+    public String getWordBetweenBlank(String mem) {
+        String menTem = "";
+        char[] chars = mem.toCharArray();
+        boolean b = false;
+        for (char c : chars) {
+            if (c == ' ') {
+                if (b) {
+                    break;
+                }
+            } else {
+                menTem = menTem + c;
+                b = true;
+            }
+        }
+        return menTem.trim();
     }
 
     public boolean isProcessRunning(String keyMsg) {

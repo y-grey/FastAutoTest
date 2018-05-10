@@ -62,9 +62,9 @@ public class RuntimeUtil {
         return b;
     }
 
-    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke) {
+    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke,int interval) {
         Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -87,7 +87,11 @@ public class RuntimeUtil {
                     System.out.println("出错：" + e.getMessage());
                 }
             }
-        }, 0, 1000);
+        };
+        if(interval>0)
+            timer.schedule(timerTask, 0, interval);
+        else
+            timer.schedule(timerTask, 0);
         return timer;
     }
 

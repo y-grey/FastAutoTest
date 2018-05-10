@@ -6,6 +6,7 @@ import yph.performance.Device;
 import yph.utils.CmdUtil;
 import yph.utils.RuntimeUtil;
 
+import java.util.List;
 import java.util.Timer;
 
 import static yph.performance.Device.deviceList;
@@ -14,32 +15,40 @@ import static yph.performance.Device.deviceList;
  * Created by _yph on 2018/4/1 0001.
  */
 
-public class PerforMonitor{
+public class PerforMonitor {
     private Timer monitorTimer;
     private boolean isInitialStatics = true;
     private long preTraffic;
     private long lastestTraffic;
     private long traffic;
-    private int uid = 0;
+    private String deviceUdid;
+    private String pkgName;
+    private int uid = -1;
+    private int pid = -1;
     private Device device = new Device();
 
-
-    public void start(final String deviceName, final String deviceUdid, final String pkgName, final Thread mainThread) {
+    public PerforMonitor(String deviceName,String deviceUdid, String pkgName) {
         device.setName(deviceName);
+        this.deviceUdid = deviceUdid;
+        this.pkgName = pkgName;
+    }
+
+    public void start(final Thread mainThread) {
         deviceList.add(device);
         monitorTimer = CmdUtil.get().getCpu(deviceUdid, new RuntimeUtil.AsyncInvoke() {
             @Override
             public void invoke(String cpu) {
                 if (!cpu.contains(pkgName + ":")) {
+                    getPid(cpu);
                     long traffic = getTraffic(deviceUdid, getUid(cpu));
                     cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%")).trim();
                     int mem = CmdUtil.get().getMem(deviceUdid);
                     String stackString = getCurStack(mainThread);
 
                     device.setCpu(Integer.valueOf(cpu))
-                          .setMem(mem)
-                          .setTraffic(traffic)
-                          .setCurStack(stackString);
+                            .setMem(mem)
+                            .setTraffic(traffic)
+                            .setCurStack(stackString);
 
                     System.out.println("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
                             + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
@@ -49,7 +58,8 @@ public class PerforMonitor{
     }
 
     public void stop() {
-        monitorTimer.cancel();
+        if (monitorTimer != null)
+            monitorTimer.cancel();
     }
 
 
@@ -67,14 +77,39 @@ public class PerforMonitor{
         return stackString;
     }
 
+    public String getCrashLog() {
+        String crashLog = "";
+        List<String> results = CmdUtil.get().getCrashLog(deviceUdid, pid);
+        for (String s : results){
+            if(s.contains("at "))
+                crashLog = crashLog + s;
+        }
+        return crashLog;
+    }
+
+    public String getAnrLog() {
+        return CmdUtil.get().getAnrLog(deviceUdid, pkgName);
+    }
+
+    public int getPid(String cpu) {
+        if (pid == -1) {
+            try {
+                pid = Integer.valueOf(CmdUtil.get().getWordBetweenBlank(cpu));
+            } catch (Exception e) {
+                pid = -1;
+            }
+        }
+        return pid;
+    }
+
     private int getUid(String cpu) {
-        if (uid == 0) {
+        if (uid == -1) {
             try {
                 String uidString = cpu.substring(cpu.indexOf("u0_a") + 4);
                 uidString = uidString.substring(0, uidString.indexOf(" "));
                 uid = Integer.valueOf(uidString) + 10000;
             } catch (Exception e) {
-                uid = 0;
+                uid = -1;
             }
         }
         return uid;
@@ -95,7 +130,7 @@ public class PerforMonitor{
                 }
             }
             preTraffic = lastestTraffic;
-            return traffic ;
+            return traffic;
         }
     }
 }

@@ -1,6 +1,7 @@
 package yph.utils;
 
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,14 +18,17 @@ public class TimeUtil {
         Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
         return new SimpleDateFormat(format).format(curDate);
     }
+
     public static String getTime() {
         Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
         return new SimpleDateFormat("yyyyMMddHHmmss").format(curDate);
     }
-    public static String getTimeAndAddOne(String format,int i) {
-        return addOne(new Date(System.currentTimeMillis()),format,i);
+
+    public static String getTimeAndAddOne(String format, int i) {
+        return addOne(new Date(System.currentTimeMillis()), format, i);
     }
-    public static String addOne(Date curDate,String format,int i) {
+
+    public static String addOne(Date curDate, String format, int i) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(curDate);
         cal.add(i, 1);
@@ -36,15 +40,37 @@ public class TimeUtil {
         return sdf.format(new Date(oldtime));
     }
 
-    public static String getWeek(String str){
+    public static long timeSubtract(String time2) {
+        return timeSubtract(getTime("yyyy-MM-dd HH:mm:ss"), time2);
+    }
+
+    public static long timeSubtract(String time1, String time2) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date d1 = df.parse(time1);
+            Date d2 = df.parse(time2);
+            long diff = d1.getTime() - d2.getTime();//这样得到的差值是微秒级别
+            return diff/(1000 * 60);
+//            System.out.println("" +diff/(1000 * 60));
+//            long days = diff / (1000 * 60 * 60 * 24);
+//            long hours = (diff - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+//            long minutes = (diff - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+//            System.out.println("" + days + "天" + hours + "小时" + minutes + "分");
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    public static String getWeek(String str) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-        String week = sdf.format(parseDate(str,"yyyy-MM-dd HH:mm"));
+        String week = sdf.format(parseDate(str, "yyyy-MM-dd HH:mm"));
         return week;
     }
+
     //根据日期取得星期几
-    public static String getWeek_(String str){
+    public static String getWeek_(String str) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-        String week = sdf.format(parseDate(str,"yyyy-MM-dd"));
+        String week = sdf.format(parseDate(str, "yyyy-MM-dd"));
         return week;
     }
 
@@ -63,6 +89,7 @@ public class TimeUtil {
         return day2 - day1;
 
     }
+
     /**
      * String转换为时间
      *
@@ -79,18 +106,21 @@ public class TimeUtil {
         }
         return addTime;
     }
+
     /**
      * 传入的时间在现在时间之前,注：不能比較只有 時分 的情況
      */
-    public static boolean isTimeBeforeNow(String str,String format) {
-        return parseDate(str,format).before(new Date(System.currentTimeMillis()));
+    public static boolean isTimeBeforeNow(String str, String format) {
+        return parseDate(str, format).before(new Date(System.currentTimeMillis()));
     }
+
     /**
      * 传入的时间在现在时间之后,注：不能比較只有 時分 的情況
      */
-    public static boolean isTimeAfterNow(String str,String format) {
-        return parseDate(str,format).after(new Date(System.currentTimeMillis()));
+    public static boolean isTimeAfterNow(String str, String format) {
+        return parseDate(str, format).after(new Date(System.currentTimeMillis()));
     }
+
     /**
      * 将日期转换为字符串
      *
@@ -194,9 +224,10 @@ public class TimeUtil {
         String sArray[] = time.split(":");
         return Integer.valueOf(sArray[0]) * 360 + Integer.valueOf(sArray[1]) * 60 + Integer.valueOf(sArray[2]) + "";
     }
+
     /**
      * 根据年 月 获取对应的月份 天数
-     * */
+     */
     public static int getDaysByYearMonth(String year, String month) {
 
         Calendar a = Calendar.getInstance();

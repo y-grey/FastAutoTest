@@ -18,8 +18,11 @@ public class RestartTestHelper {
         if (restartTestListTl.get() == null) {
             List<Boolean> restartTestList = new ArrayList<>();
             List<TestBean> testBeans = Configure.get().getTestBeans();
-            for (TestBean testBean : testBeans) {
-                restartTestList.add(testBean.isRestart());
+            for (int i = 0 ; i< testBeans.size();i++) {
+                if(i == 0)
+                    restartTestList.add(true);
+                else
+                    restartTestList.add(testBeans.get(i).isRestart());
             }
             restartTestListTl.set(restartTestList);
         }
