@@ -9,7 +9,7 @@ FastAutoTest
  * 自动安装新版本软件，无需手动安装，由自动化工作开始前通过对比版本进行软件更新；
  * 自动采集性能数据（CPU，内存，流量）和对应执行栈，并在报告中展示；
  * 自动进行卡顿监测，内存泄漏监测，crash监测，收集日志和对应执行栈，并在报告中展示；
- * 智能失败重跑策略，出现异常退出会重启进行场景恢复，不影响后面case的执行；
+ * 智能失败重跑策略，出现异常退出会重启并进行场景恢复，不影响后面case的执行；
  * 内部DefaultReport已替换为修改版的  [ReportNG](https://github.com/dwdyer/reportng)，更清晰地展示测试结果。
 
 使用
@@ -29,7 +29,7 @@ _Gradle_
 * Step 2. 在项目module的build.gradle添加依赖
 ```groovy
     dependencies {
-      compile 'yph:fastautotest:1.3.3'
+      compile 'yph:fastautotest:1.3.6'
     }
 ```
 _Maven_
@@ -37,7 +37,7 @@ _Maven_
     <dependency>
       <groupId>yph</groupId>
       <artifactId>fastautotest</artifactId>
-      <version>1.3.3</version>
+      <version>1.3.6</version>
       <type>pom</type>
     </dependency>
 ```
