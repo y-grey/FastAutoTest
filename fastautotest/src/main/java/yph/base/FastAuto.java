@@ -4,16 +4,17 @@ import org.testng.TestNG;
 import org.testng.reporters.JUnitXMLReporter;
 import org.testng.xml.XmlSuite;
 import org.uncommons.reportng.HTMLReporter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import yph.bean.Configure;
 import yph.helper.XmlSuiteBuilder;
 import yph.listener.AnnotationListener;
 import yph.listener.TestResultListener;
 import yph.utils.ApkUtil;
 import yph.utils.CmdUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class FastAuto {
     public static void run(Configure configure) {
@@ -45,6 +46,7 @@ public class FastAuto {
                     CmdUtil.get().getPlatformVersion(deviceUdid),
                     configure)
                     .build());
+            CmdUtil.get().clearLog(deviceUdid);
         }
         return testList;
     }

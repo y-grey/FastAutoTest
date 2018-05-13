@@ -1,13 +1,14 @@
 package yph.base;
 
+import java.util.List;
+import java.util.Timer;
+
 import yph.bean.Configure;
 import yph.bean.TestBean;
+import yph.constant.Constant;
 import yph.performance.Device;
 import yph.utils.CmdUtil;
 import yph.utils.RuntimeUtil;
-
-import java.util.List;
-import java.util.Timer;
 
 import static yph.performance.Device.deviceList;
 
@@ -38,21 +39,25 @@ public class PerforMonitor {
         monitorTimer = CmdUtil.get().getCpu(deviceUdid, new RuntimeUtil.AsyncInvoke() {
             @Override
             public void invoke(String cpu) {
-                if (!cpu.contains(pkgName + ":")) {
-                    getPid(cpu);
-                    long traffic = getTraffic(deviceUdid, getUid(cpu));
-                    cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%")).trim();
-                    int mem = CmdUtil.get().getMem(deviceUdid);
-                    String stackString = getCurStack(mainThread);
-
-                    device.setCpu(Integer.valueOf(cpu))
-                            .setMem(mem)
-                            .setTraffic(traffic)
-                            .setCurStack(stackString);
-
-                    System.out.println("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
-                            + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
+                if (cpu.equals(Constant.APP_NOT_STARTING)) {
+                    System.out.println(Constant.APP_NOT_STARTING);
+                    isCrash = true;
+                    return;
                 }
+                isCrash = false;
+                getPid(cpu);
+                long traffic = getTraffic(deviceUdid, getUid(cpu));
+                cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%")).trim();
+                int mem = CmdUtil.get().getMem(deviceUdid);
+                String stackString = getCurStack(mainThread);
+
+                device.setCpu(Integer.valueOf(cpu))
+                        .setMem(mem)
+                        .setTraffic(traffic)
+                        .setCurStack(stackString);
+
+                System.out.println("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
+                        + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
             }
         });
     }
@@ -77,18 +82,20 @@ public class PerforMonitor {
         return stackString;
     }
 
+    boolean isCrash = true;
     public String getCrashLog() {
         String crashLog = "";
-        List<String> results = CmdUtil.get().getCrashLog(deviceUdid, pid);
-        for (String s : results){
-            if(s.contains("at "))
-                crashLog = crashLog + s;
+        if(isCrash) {
+            List<String> results = CmdUtil.get().getCrashLog(deviceUdid);
+            for (String s : results) {
+                crashLog = crashLog + s.replace("(AndroidRuntime)", "") + "\n";
+            }
         }
         return crashLog;
     }
 
     public String getAnrLog() {
-        return CmdUtil.get().getAnrLog(deviceUdid, pkgName);
+        return CmdUtil.get().getAnrLog(deviceUdid);
     }
 
     public int getPid(String cpu) {

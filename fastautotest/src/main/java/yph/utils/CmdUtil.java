@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import yph.constant.Constant;
+import yph.filter.AnrFilter;
+import yph.filter.CpuFilter;
+import yph.filter.CrashFilter;
+
 import static yph.utils.RuntimeUtil.execAsync;
 
 /**
@@ -35,7 +40,7 @@ public class CmdUtil {
 
     public List<String> getDevices() {
         List<String> devices = new ArrayList<>();
-        List<String> results = RuntimeUtil.exec(adb + " devices", "Get Devices");
+        List<String> results = RuntimeUtil.exec(adb + " devices", Constant.GET_DEVICES);
         System.out.println(results);
         if (results.size() > 0) {
             for (int i = 0; i < results.size(); i++) {
@@ -76,7 +81,7 @@ public class CmdUtil {
     }
 
     public Timer getCpu(String deviceUdid, RuntimeUtil.AsyncInvoke asyncInvoke) {
-        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1000);
+        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1000, CpuFilter.get());
     }
 
     public long getTraffic(String deviceUdid, int uid) {
@@ -101,10 +106,10 @@ public class CmdUtil {
         return -1;
     }
 
-    public List<String> getCrashLog(String deviceUdid, int pid) {
+    public List<String> getCrashLog(String deviceUdid) {
         List<String> results = new ArrayList<>();
         try {
-            final Process process = Runtime.getRuntime().exec(adb + " -s " + deviceUdid + " shell logcat -v process *:E | grep '" + pid + "'");
+            final Process process = Runtime.getRuntime().exec(adb + " -s " + deviceUdid + " shell logcat -v process *:E");
             final Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -112,8 +117,8 @@ public class CmdUtil {
                     process.destroy();
                     timer.cancel();
                 }
-            },2000);
-            results.addAll(RuntimeUtil.exec(process,""));
+            },500);
+            results.addAll(RuntimeUtil.exec(process, Constant.CHECK_CRASH , new CrashFilter()));
             CmdUtil.get().clearLog(deviceUdid);
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,19 +130,17 @@ public class CmdUtil {
         RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell logcat -c", "");
     }
 
-    public String getAnrLog(String deviceUdid, String pkgname) {
+    public String getAnrLog(String deviceUdid) {
         String AnrLog = "";
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep -B 1 'Cmd line: " + pkgname +"'", "");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep -B 1 'Cmd line: " + pkgName +"'", Constant.CHECK_ANR);
         if (results.size() > 0) {
             String time =  results.get(0);
             time = time.substring(time.indexOf("at")+3,time.lastIndexOf(":")+3);
             long l = TimeUtil.timeSubtract(time);
             if(l!=-1 && l<2){//2分钟之内的anr
-                results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep 'at com.'|grep -v 'com.android'", "");
+                results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt", "",new AnrFilter());
                 for(String s : results){
-                    if(!AnrLog.contains(s)){
-                        AnrLog = AnrLog+s+"\n";
-                    }
+                    AnrLog = AnrLog+s+"\n";
                 }
             }
         }

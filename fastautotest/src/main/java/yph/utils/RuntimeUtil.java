@@ -9,24 +9,32 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import yph.constant.Constant;
+import yph.filter.AdbFilter;
+import yph.filter.Filter;
+
 public class RuntimeUtil {
 
-    private static String filter[] = new String[]{"List of devices attached", "offline", "adb server version",
-            "daemon not running", "adb server is out of date", "daemon started successfully", "not found", "Failed to"
-                ,"No such file or directory"};
-
     public static List<String> exec(String cmd, String log) {
+        return exec(cmd, log, AdbFilter.get());
+    }
+
+    public static List<String> exec(String cmd, String log, Filter filter) {
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(cmd);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        List<String> list = exec(process, log);
+        List<String> list = exec(process, log, filter);
         return list;
     }
 
     public static List<String> exec(Process process, String log) {
+        return exec(process, log, AdbFilter.get());
+    }
+
+    public static List<String> exec(Process process, String log, Filter filter) {
         if (log != null && !log.equals(""))
             System.out.println(log);
         List<String> list = new ArrayList<>();
@@ -35,7 +43,7 @@ public class RuntimeUtil {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (filter(line)) {
+                if (filter.filt(line)) {
                     list.add(line);
                 }
             }
@@ -50,19 +58,8 @@ public class RuntimeUtil {
         return list;
     }
 
-    private static boolean filter(String line) {
-        if (line.trim().equals("")) return false;
-        boolean b = true;
-        for (String filt : filter) {
-            if (line.contains(filt)) {
-                b = false;
-                break;
-            }
-        }
-        return b;
-    }
 
-    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke,int interval) {
+    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke, int interval,final Filter filter) {
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -73,10 +70,15 @@ public class RuntimeUtil {
                     InputStream inputStream = process.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;
+                    boolean isGetCpu = false;
                     while ((line = reader.readLine()) != null) {
-                        if (filter(line)) {
+                        if (filter.filt(line)) {
+                            isGetCpu = true;
                             if (syncInvoke != null) syncInvoke.invoke(line);
                         }
+                    }
+                    if(!isGetCpu && syncInvoke != null){
+                        syncInvoke.invoke(Constant.APP_NOT_STARTING);
                     }
                     process.waitFor();
                     inputStream.close();
@@ -88,7 +90,7 @@ public class RuntimeUtil {
                 }
             }
         };
-        if(interval>0)
+        if (interval > 0)
             timer.schedule(timerTask, 0, interval);
         else
             timer.schedule(timerTask, 0);

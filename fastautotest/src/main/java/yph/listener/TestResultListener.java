@@ -43,31 +43,27 @@ public class TestResultListener extends TestListenerAdapter {
         Iterator<ITestResult> skippedTests = testContext.getSkippedTests().getAllResults().iterator();
         while (skippedTests.hasNext()) {
             ITestResult skippedTest = skippedTests.next();
-            if (testContext.getSkippedTests().getResults(skippedTest.getMethod()).size() > 1) {//去重
-                skippedTests.remove();
-            }else {
-                String skipRunCount = "RunCount=1";
-                List<String> list =  Reporter.getOutput(skippedTest);
-                for(String s : list){
-                    if(s.contains("RunCount=")){//获取skipcount
-                        skipRunCount = s;
-                    }
+            int skipRunCount = 1;
+            List<String> list = Reporter.getOutput(skippedTest);
+            for (String s : list) {
+                if (s.contains("RunCount=")) {//获取skipcount
+                    skipRunCount = Integer.valueOf(s.replace("RunCount=", ""));
                 }
+            }
+            if (skipRunCount == TestRetryListener.maxRetryCount + 1) {//找到最后一条skip
                 for (ITestResult passedTest : testContext.getPassedTests().getAllResults()) {//如果pass了
-                    if(getId(skippedTest) == getId(passedTest)){//那就把skipcount赋值给passcount
+                    if (getId(skippedTest) == getId(passedTest)) {//那就把skipcount赋值给passcount
                         Reporter.setCurrentTestResult(passedTest);
-                        Reporter.log(skipRunCount);
-                        skippedTests.remove();
                     }
                 }
                 for (ITestResult failTest : testContext.getFailedTests().getAllResults()) {//如果fail了
-                    if(getId(skippedTest) == getId(failTest)){//那就把skipcount赋值给failcount
+                    if (getId(skippedTest) == getId(failTest)) {//那就把skipcount赋值给failcount
                         Reporter.setCurrentTestResult(failTest);
-                        Reporter.log(skipRunCount);
-                        skippedTests.remove();
                     }
                 }
+                Reporter.log("RunCount=" + skipRunCount);
             }
+            skippedTests.remove();
         }
     }
 
@@ -92,12 +88,12 @@ public class TestResultListener extends TestListenerAdapter {
             File screenshot = BaseTest.androidDriverTl.get().getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(screenshot, destFile);
         } catch (Exception e) {
-            Reporter.log("截图失败："+e.toString());
+            Reporter.log("截图失败：" + e.toString());
             return;
         }
         if (destFile.exists()) {
             Reporter.setCurrentTestResult(tr);
-            Reporter.log("<img class='pimg' src='" + filePath.replace("test-output/html/","") + "' hight='100' width='100'/>");
+            Reporter.log("<img class='pimg' src='" + filePath.replace("test-output/html/", "") + "' hight='100' width='100'/>");
         }
     }
 }
