@@ -3,7 +3,6 @@ package testqq;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public class TestContacts extends BaseTest {
     @FindBy(id = "com.tencent.mobileqq:id/ivTitleBtnRightText")
     WebElement element;
 
-    @BeforeClass
+    @Test
     public void entry() {
         list.get(0).click();
     }
