@@ -1,18 +1,34 @@
 package yph.base;
 
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AutomationName;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
-import org.testng.annotations.*;
-import yph.helper.RestartTestHelper;
-import yph.utils.SleepUtil;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Parameters;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static io.appium.java_client.remote.AndroidMobileCapabilityType.*;
-import static io.appium.java_client.remote.MobileCapabilityType.*;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.AutomationName;
+import yph.helper.RestartTestHelper;
+import yph.performance.PerforMonitor;
+import yph.utils.SleepUtil;
+
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.NO_SIGN;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.RESET_KEYBOARD;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.UNICODE_KEYBOARD;
+import static io.appium.java_client.remote.MobileCapabilityType.APP;
+import static io.appium.java_client.remote.MobileCapabilityType.AUTOMATION_NAME;
+import static io.appium.java_client.remote.MobileCapabilityType.DEVICE_NAME;
+import static io.appium.java_client.remote.MobileCapabilityType.NO_RESET;
+import static io.appium.java_client.remote.MobileCapabilityType.PLATFORM_NAME;
+import static io.appium.java_client.remote.MobileCapabilityType.PLATFORM_VERSION;
 
 public class BaseTest {
 

@@ -1,4 +1,4 @@
-package yph.base;
+package yph.performance;
 
 import java.util.List;
 import java.util.Timer;
@@ -6,7 +6,6 @@ import java.util.Timer;
 import yph.bean.Configure;
 import yph.bean.TestBean;
 import yph.constant.Constant;
-import yph.performance.Device;
 import yph.utils.CmdUtil;
 import yph.utils.RuntimeUtil;
 
