@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="$messages.locale.language"
+      lang="$messages.locale.language">
+<head>
+    <title>$meta.reportTitle - $messages.getString("scanPerformance")</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <meta name="description" content="TestNG unit test results."/>
+    <link href="reportng.css" rel="stylesheet" type="text/css"/>
+    #if ($meta.stylesheetPath)
+    <link href="custom.css" rel="stylesheet" type="text/css"/>
+    #end
+    <script src='http://www.ichartjs.com/ichart.latest.min.js'></script>
+    <script type="text/javascript" src="reportng.js"></script>
+</head>
+<body>
+<div id='lineChart'></div>
+<div id='lineChart2'></div>
+<div id='lineChart3'></div>
+<script type='text/javascript'>
+			$(function() {
+			    #foreach ($device in $devices)
+			        #set($tempName = $device.name.replace(' ',''))
+                    if(GetQueryString("name") == '${device.name}'){
+                        var ${tempName}cpus = ${device.cpuList};
+                        var ${tempName}mems = ${device.memList};
+                        var ${tempName}traffics = ${device.trafficList};
+                        var ${tempName}curStacks = ${device.curStackList};
+                        showLineChart('lineChart',GetQueryString("name")+' CPU走势图','建议CPU正常范围： < 60% ', 'CPU(百分比)', ${tempName}cpus,${tempName}curStacks);
+				        showLineChart('lineChart2',GetQueryString("name")+' 内存走势图','建议内存正常范围：< 550MB 且不出现无限增长和持续抖动', 'PSS内存(MB)', ${tempName}mems,${tempName}curStacks);
+				        showLineChart('lineChart3',GetQueryString("name")+' 流量走势图','建议流量正常范围：< 5.12 KB/s ', '流量(KB)', ${tempName}traffics,${tempName}curStacks);
+                    }
+                #end
+			});
+    function GetQueryString(name) {
+       var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
+       var r = window.location.search.substr(1).match(reg);
+       if (r!=null) return (r[2]); return null;
+    }
+</script>
+</body>
+</html>

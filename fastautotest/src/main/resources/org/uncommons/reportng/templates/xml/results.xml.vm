@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+#set ($totalTests = $results.passedTests.size() + $results.skippedTests.size() + $results.failedTests.size())
+<testsuite name="$results.testClass.xmlTest.name"
+           tests="$totalTests"
+           failures="$results.failedTests.size()"
+           errors="0"
+           skipped="$results.skippedTests.size()"
+           time="$utils.formatDuration($results.duration)">
+  <properties />
+  #foreach ($testResult in $results.failedTests)
+    #if ($testResult.testName)
+      <testcase name="$testResult.name" time="$utils.formatDuration($testResult.startMillis, $testResult.endMillis)" classname="$results.testClass.name ($testResult.testName)">
+    #else
+      <testcase name="$testResult.name" time="$utils.formatDuration($testResult.startMillis, $testResult.endMillis)" classname="$results.testClass.name">
+    #end
+      #if ($testResult.throwable)
+      <failure type="$testResult.throwable.class.name"
+        #if ($testResult.throwable.message)
+          message="$utils.escapeString($testResult.throwable.message)"
+        #else 
+          message="(null)"
+        #end
+      >
+<![CDATA[$testResult.throwable.toString()
+#foreach ($element in $testResult.throwable.stackTrace)
+  $element.toString()
+#end
+#set ($causes = $utils.getCauses($testResult.throwable))
+#foreach ($throwable in $causes)
+$messages.getString("causedBy"): $throwable.toString()
+#foreach ($element in $throwable.stackTrace)
+  $element.toString()
+#end
+#end]]>
+      </failure>
+
+      #else
+      <failure type="Unknown"
+        #if ($testResult.status == 3)
+          message="Skipped"
+        #else
+          message="Unknown"
+        #end
+      />
+      #end
+    </testcase>
+  #end
+
+  #foreach ($testResult in $results.skippedTests)
+    #if ($testResult.testName)
+      <testcase name="$testResult.name" time="0.0" classname="$results.testClass.name ($testResult.testName)">
+    #else
+      <testcase name="$testResult.name" time="0.0" classname="$results.testClass.name">
+    #end
+      <skipped />
+    </testcase>
+  #end
+
+  #foreach ($testResult in $results.passedTests)
+    #if ($testResult.testName)
+      <testcase name="$testResult.name" time="$utils.formatDuration($testResult.startMillis, $testResult.endMillis)" classname="$results.testClass.name ($testResult.testName)" />
+    #else
+      <testcase name="$testResult.name" time="$utils.formatDuration($testResult.startMillis, $testResult.endMillis)" classname="$results.testClass.name" />
+    #end
+  #end
+
+</testsuite>

@@ -6,7 +6,7 @@ import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import yph.annotations.Authod;
+import yph.annotation.FastAuto;
 import yph.base.BaseTest;
 
 
@@ -23,7 +23,7 @@ public class TestMessage extends BaseTest{
         driver.pressKeyCode(4);
     }
 
-    @Authod("张三")
+    @FastAuto(author = "张三")
     @Test(description = "测试Assert")
     public void test1() {
         Assert.assertTrue(false);
