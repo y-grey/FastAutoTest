@@ -20,6 +20,7 @@ import yph.utils.SleepUtil;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.DONT_STOP_APP_ON_RESET;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.NO_SIGN;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.RESET_KEYBOARD;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.UNICODE_KEYBOARD;
@@ -35,8 +36,7 @@ public class BaseTest {
     @Parameters({"node", "appiumMainJs", "port", "bootstrap_port", "chromedriver_port", "udid"})
     @BeforeSuite
     public void startServer(String node, String appiumMainJs, String port, String bootstrapPort, String chromeDriverPort, String udid) {
-        if (!appiumMainJs.equals(""))
-            AppiumServer.start(node, appiumMainJs, port, bootstrapPort, chromeDriverPort, udid);
+        AppiumServer.start(node, appiumMainJs, port, bootstrapPort, chromeDriverPort, udid);
     }
 
     @Parameters({"port", "platformName", "platformVersion", "deviceName", "appPackage", "appActivity", "app", "udid"})
@@ -54,6 +54,7 @@ public class BaseTest {
         caps.setCapability(APP_ACTIVITY, appActivity);
         caps.setCapability(UNICODE_KEYBOARD, true);
         caps.setCapability(RESET_KEYBOARD, true);
+        caps.setCapability(DONT_STOP_APP_ON_RESET, true);
         caps.setCapability(NO_SIGN, true);//表示不重签名app在设置为true的情况下
         if (isLargeThan4d4(platformVersion))
             caps.setCapability(AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
