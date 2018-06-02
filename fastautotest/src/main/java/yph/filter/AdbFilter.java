@@ -6,7 +6,7 @@ package yph.filter;
 
 public class AdbFilter implements Filter {
 
-    private static String filter[] = new String[]{"List of devices attached", "offline", "adb server version",
+    private static String filter[] = new String[]{"List of devices attached", "offline", "unauthorized", "adb server version",
             "daemon not running", "adb server is out of date", "daemon started successfully", "not found", "Failed to"
             , "No such file or directory"};
 

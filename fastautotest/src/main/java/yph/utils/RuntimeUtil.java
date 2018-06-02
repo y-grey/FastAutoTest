@@ -36,7 +36,7 @@ public class RuntimeUtil {
 
     public static List<String> exec(Process process, String log, Filter filter) {
         if (log != null && !log.equals(""))
-            System.out.println(log);
+            Log.i(log);
         List<String> list = new ArrayList<>();
         try {
             InputStream inputStream = process.getInputStream();
@@ -53,7 +53,7 @@ public class RuntimeUtil {
             process.destroy();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("出错：" + e.getMessage());
+            Log.e("出错：" + e.getMessage());
         }
         return list;
     }
@@ -65,7 +65,8 @@ public class RuntimeUtil {
             @Override
             public void run() {
                 try {
-//                    System.out.println("exec " + cmd);
+                    Log.d("cpu start");
+//                    L.i("exec " + cmd);
                     Process process = Runtime.getRuntime().exec(cmd);
                     InputStream inputStream = process.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -86,7 +87,7 @@ public class RuntimeUtil {
                     process.destroy();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("出错：" + e.getMessage());
+                    Log.e("出错：" + e.getMessage());
                 }
             }
         };

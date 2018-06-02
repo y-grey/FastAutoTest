@@ -3,12 +3,12 @@ package yph.listener;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 import org.testng.Reporter;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
 
 import io.appium.java_client.android.Activity;
-import io.appium.java_client.android.Connection;
+import io.appium.java_client.android.connection.ConnectionState;
 import yph.constant.Constant;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
@@ -48,8 +48,8 @@ public class TestRetryListener implements IRetryAnalyzer {
 			Reporter.log("应用无响应(ANR)："+anrLog);
 			return false;
 		}
-		Connection connection = androidDriverTl.get().getConnection();
-		if(connection == Connection.NONE){
+		ConnectionState connection = androidDriverTl.get().getConnection();
+		if(!connection.isDataEnabled() && !connection.isWiFiEnabled()){
 			Reporter.log("网络未打开");
 			return false;
 		}
@@ -65,7 +65,7 @@ public class TestRetryListener implements IRetryAnalyzer {
 			Method[] methods = clazz.getDeclaredMethods();
 			if (methods != null && methods.length > 0) {
 				for (Method method : methods) {
-					BeforeClass ano = method.getAnnotation(BeforeClass.class);
+					Test ano = method.getAnnotation(Test.class);
 					if (ano != null && method.getName().equals(Constant.ENTRY)) {
 						method.invoke(clazz.newInstance());
 					}

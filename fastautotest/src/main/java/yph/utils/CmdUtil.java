@@ -41,7 +41,7 @@ public class CmdUtil {
     public List<String> getDevices() {
         List<String> devices = new ArrayList<>();
         List<String> results = RuntimeUtil.exec(adb + " devices", Constant.GET_DEVICES);
-        System.out.println(results);
+        Log.i(results);
         if (results.size() > 0) {
             for (int i = 0; i < results.size(); i++) {
                 String deviceUdid = results.get(i);
@@ -56,7 +56,7 @@ public class CmdUtil {
 
     public String getPlatformVersion(String deviceUdid) {
         List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell getprop ro.build.version.release", "Get " + deviceUdid + " Platform Version");
-        System.out.println(results);
+        Log.i(results);
         return results.get(0);
     }
 
@@ -76,12 +76,12 @@ public class CmdUtil {
 
     public String getDeviceName(String deviceUdid) {
         List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell getprop ro.product.model", "Get " + deviceUdid + " Device`s Name");
-        System.out.println(results);
+        Log.i(results);
         return results.get(0);
     }
 
     public Timer getCpu(String deviceUdid, RuntimeUtil.AsyncInvoke asyncInvoke) {
-        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1000, CpuFilter.get());
+        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1, CpuFilter.get());
     }
 
     public long getTraffic(String deviceUdid, int uid) {

@@ -36,7 +36,7 @@ public class SystemEnvUtil {
 
         String oriAdb = getSystemAdb();
         if (oriAdb == null) {
-            throw new IllegalStateException("未配置adb环境");
+            throw new IllegalStateException("not set adb environment");
         } else {
             copyAdb(oriAdb + "/", destAdb);
         }
@@ -65,7 +65,7 @@ public class SystemEnvUtil {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IllegalStateException("copy adb失败，请手动copy " +
+            throw new IllegalStateException("copy adb fail，请手动copy " +
                     Arrays.asList(adbFiles).toString() + " 至项目根目录adb文件夹下");
         }
     }

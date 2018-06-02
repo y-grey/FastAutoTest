@@ -9,17 +9,18 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.AutomationName;
 import yph.helper.RestartTestHelper;
 import yph.performance.PerforMonitor;
+import yph.utils.Log;
 import yph.utils.SleepUtil;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
+import static io.appium.java_client.remote.AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.DONT_STOP_APP_ON_RESET;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.NO_SIGN;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.RESET_KEYBOARD;
@@ -42,7 +43,7 @@ public class BaseTest {
     @Parameters({"port", "platformName", "platformVersion", "deviceName", "appPackage", "appActivity", "app", "udid"})
     @BeforeTest
     public void setUp(String appiumPort, String platformName, String platformVersion, String deviceName, String appPackage,
-                      String appActivity, String app, String udid) throws MalformedURLException {
+                      String appActivity, String app, String udid) {
         if (!RestartTestHelper.isCurTestRestart()) return;
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability(PLATFORM_NAME, platformName);
@@ -54,16 +55,27 @@ public class BaseTest {
         caps.setCapability(APP_ACTIVITY, appActivity);
         caps.setCapability(UNICODE_KEYBOARD, true);
         caps.setCapability(RESET_KEYBOARD, true);
+        caps.setCapability(AUTO_GRANT_PERMISSIONS, true);
         caps.setCapability(DONT_STOP_APP_ON_RESET, true);
         caps.setCapability(NO_SIGN, true);//表示不重签名app在设置为true的情况下
         if (isLargeThan4d4(platformVersion))
             caps.setCapability(AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
         addCap(caps);
-        AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
+        AndroidDriver driver = newAndroidDriver(appiumPort, caps);
         androidDriverTl.set(driver);
         PerforMonitor perforMonitor = new PerforMonitor(deviceName, udid, appPackage);
         perforMonitor.start(Thread.currentThread());
         perforMonitorTl.set(perforMonitor);
+    }
+
+    private AndroidDriver newAndroidDriver(String appiumPort, DesiredCapabilities caps) {
+        try {
+            return new AndroidDriver(new URL("http://127.0.0.1:" + appiumPort + "/wd/hub"), caps);
+        } catch (Exception e) {
+            Log.e("AndroidDriver init fail.");
+            stopServer(appiumPort);
+            throw new IllegalStateException(e);
+        }
     }
 
     private boolean isLargeThan4d4(String platformVersion) {

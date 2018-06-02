@@ -6,6 +6,8 @@ import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
 import yph.annotation.FastAuto;
 import yph.base.BaseTest;
 
@@ -20,7 +22,7 @@ public class TestMessage extends BaseTest{
     @Test(description = "测试消息")
     public void test() {
         element.click();
-        driver.pressKeyCode(4);
+        driver.pressKey(new KeyEvent(AndroidKey.BACK));
     }
 
     @FastAuto(author = "张三")

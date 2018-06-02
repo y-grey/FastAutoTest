@@ -7,6 +7,7 @@ import yph.bean.Configure;
 import yph.bean.TestBean;
 import yph.constant.Constant;
 import yph.utils.CmdUtil;
+import yph.utils.Log;
 import yph.utils.RuntimeUtil;
 
 import static yph.performance.Device.deviceList;
@@ -38,24 +39,31 @@ public class PerforMonitor {
         monitorTimer = CmdUtil.get().getCpu(deviceUdid, new RuntimeUtil.AsyncInvoke() {
             @Override
             public void invoke(String cpu) {
+                Log.d("cpu end");
                 if (cpu.equals(Constant.APP_NOT_STARTING)) {
-                    System.out.println(Constant.APP_NOT_STARTING);
+                    Log.e(Constant.APP_NOT_STARTING);
                     isCrash = true;
                     return;
                 }
                 isCrash = false;
                 getPid(cpu);
+                Log.d("traffic start");
                 long traffic = getTraffic(deviceUdid, getUid(cpu));
+                Log.d("traffic end");
                 cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%")).trim();
+                Log.d("mem start");
                 int mem = CmdUtil.get().getMem(deviceUdid);
+                Log.d("mem end");
+                Log.d("stackString start");
                 String stackString = getCurStack(mainThread);
+                Log.d("stackString end");
 
                 device.setCpu(Integer.valueOf(cpu))
                         .setMem(mem)
                         .setTraffic(traffic)
                         .setCurStack(stackString);
 
-                System.out.println("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
+                Log.i("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
                         + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
             }
         });

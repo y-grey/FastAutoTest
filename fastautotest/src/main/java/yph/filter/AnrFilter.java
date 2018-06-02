@@ -1,5 +1,7 @@
 package yph.filter;
 
+import yph.utils.Log;
+
 /**
  * Created by _yph on 2018/5/12 0012.
  */
@@ -22,7 +24,7 @@ public class AnrFilter extends AdbFilter {
                 return false;
             }
             isFind = true;
-            System.out.println(line);
+            Log.e(line);
             return true;
         }
         return false;

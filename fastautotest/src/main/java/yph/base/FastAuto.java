@@ -15,6 +15,7 @@ import yph.listener.AnnotationListener;
 import yph.listener.TestResultListener;
 import yph.utils.ApkUtil;
 import yph.utils.CmdUtil;
+import yph.utils.Log;
 
 public class FastAuto {
     public static void run(Configure configure) {
@@ -57,7 +58,7 @@ public class FastAuto {
             Map map = ApkUtil.readApk(apkPath);
             int newV = (int) map.get("versionCode");
             int curV = CmdUtil.get().getVersionCode(deviceName);
-            System.out.println("curV:"+curV + "   newV:"+newV);
+            Log.i("curV:"+curV + "   newV:"+newV);
             if(newV > curV){
 //                RuntimeUtil.installApk(configure.getAdb(),device,configure.getApkPath());
             }
