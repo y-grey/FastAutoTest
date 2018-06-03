@@ -29,7 +29,7 @@ _Gradle_
 * Step 2. 在项目module的build.gradle添加依赖
 ```groovy
     dependencies {
-      compile 'yph:fastautotest:1.4.0'
+      compile 'yph:fastautotest:1.4.1'
     }
 ```
 _Maven_
@@ -37,7 +37,7 @@ _Maven_
     <dependency>
       <groupId>yph</groupId>
       <artifactId>fastautotest</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1</version>
       <type>pom</type>
     </dependency>
 ```
