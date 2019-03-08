@@ -15,6 +15,10 @@ import yph.filter.Filter;
 
 public class RuntimeUtil {
 
+    public static List<String> exec(String cmd) {
+        return exec(cmd, "", AdbFilter.get());
+    }
+
     public static List<String> exec(String cmd, String log) {
         return exec(cmd, log, AdbFilter.get());
     }
@@ -59,14 +63,14 @@ public class RuntimeUtil {
     }
 
 
-    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke, int interval,final Filter filter) {
+    public static Timer execAsync(final String cmd, final AsyncInvoke syncInvoke, int interval, final Filter filter) {
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 try {
-                    Log.d("cpu start");
-//                    L.i("exec " + cmd);
+//                    Log.d("cpu start");
+//                    Log.d("exec " + cmd);
                     Process process = Runtime.getRuntime().exec(cmd);
                     InputStream inputStream = process.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -78,7 +82,7 @@ public class RuntimeUtil {
                             if (syncInvoke != null) syncInvoke.invoke(line);
                         }
                     }
-                    if(!isGetCpu && syncInvoke != null){
+                    if (!isGetCpu && syncInvoke != null) {
                         syncInvoke.invoke(Constant.APP_NOT_STARTING);
                     }
                     process.waitFor();

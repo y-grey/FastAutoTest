@@ -2,13 +2,13 @@ package yph.performance;
 
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import yph.bean.Configure;
 import yph.bean.TestBean;
-import yph.constant.Constant;
 import yph.utils.CmdUtil;
+import yph.utils.CpuSnapshot;
 import yph.utils.Log;
-import yph.utils.RuntimeUtil;
 
 import static yph.performance.Device.deviceList;
 
@@ -25,40 +25,46 @@ public class PerforMonitor {
     private String deviceUdid;
     private String pkgName;
     private int uid = -1;
-    private int pid = -1;
+    public int pid = -1;
     private Device device = new Device();
 
-    public PerforMonitor(String deviceName,String deviceUdid, String pkgName) {
+    private CpuSnapshot mLastSnapShot;
+    private int occurCount;
+
+
+    public PerforMonitor(String deviceName, String deviceUdid, String pkgName) {
         device.setName(deviceName);
         this.deviceUdid = deviceUdid;
         this.pkgName = pkgName;
+        initPUid();
     }
 
     public void start(final Thread mainThread) {
         deviceList.add(device);
-        monitorTimer = CmdUtil.get().getCpu(deviceUdid, new RuntimeUtil.AsyncInvoke() {
+        monitorTimer = new Timer();
+        TimerTask timerTask = new TimerTask() {
             @Override
-            public void invoke(String cpu) {
-                Log.d("cpu end");
-                if (cpu.equals(Constant.APP_NOT_STARTING)) {
-                    Log.e(Constant.APP_NOT_STARTING);
-                    isCrash = true;
+            public void run() {
+//                Log.d("cpu start");
+                int cpu = getAppCpuRate();
+//                Log.d("cpu end");
+                if (cpu == -1) {
+                    String line = CmdUtil.get().execPs(deviceUdid);
+                    if (!isPsNotExists(line)) {
+                        initPUid(line);
+                    }
                     return;
                 }
-                isCrash = false;
-                getPid(cpu);
-                Log.d("traffic start");
-                long traffic = getTraffic(deviceUdid, getUid(cpu));
-                Log.d("traffic end");
-                cpu = cpu.substring(cpu.lastIndexOf("%") - 2, cpu.lastIndexOf("%")).trim();
-                Log.d("mem start");
+//                Log.d("traffic start");
+//                long traffic = getTraffic(deviceUdid, uid);
+//                Log.d("traffic end");
+//                Log.d("mem start");
+//                int mem = 0;
                 int mem = CmdUtil.get().getMem(deviceUdid);
-                Log.d("mem end");
-                Log.d("stackString start");
+//                Log.d("mem end");
                 String stackString = getCurStack(mainThread);
-                Log.d("stackString end");
 
-                device.setCpu(Integer.valueOf(cpu))
+                device.setCpu(cpu)
                         .setMem(mem)
                         .setTraffic(traffic)
                         .setCurStack(stackString);
@@ -66,7 +72,8 @@ public class PerforMonitor {
                 Log.i("[" + device.getName() + " cpu:" + cpu + "%  men:" + mem
                         + "MB  traffic:" + traffic + "KB  curStack:" + stackString + "]");
             }
-        });
+        };
+        monitorTimer.schedule(timerTask, 0, 1000);
     }
 
     public void stop() {
@@ -74,6 +81,34 @@ public class PerforMonitor {
             monitorTimer.cancel();
     }
 
+    private int getAppCpuRate() {
+        CpuSnapshot endSnapshot = CmdUtil.get().getCpu(deviceUdid, pid);
+        if (endSnapshot == null) {
+            return -1;
+        }
+        if (mLastSnapShot == null) {
+            mLastSnapShot = endSnapshot;
+            return -1;
+        }
+        float totalTime = (endSnapshot.total - mLastSnapShot.total) * 1.0f;
+        if (totalTime <= 0) {
+            return -1;
+        }
+
+        int appRatio = (int) ((endSnapshot.app - mLastSnapShot.app) / totalTime * 100f);
+        if (appRatio > 80) {
+            if (occurCount < 4) {
+                occurCount++;
+            }
+            if (occurCount == 2) {
+                // TODO: 2019/3/2 0002 dump traceView
+            }
+        } else {
+            occurCount = 0;
+        }
+        mLastSnapShot = endSnapshot;
+        return appRatio;
+    }
 
     private String getCurStack(Thread mainThread) {
         String stackString = "";
@@ -89,10 +124,9 @@ public class PerforMonitor {
         return stackString;
     }
 
-    boolean isCrash = true;
     public String getCrashLog() {
         String crashLog = "";
-        if(isCrash) {
+        if (isPsNotExists(CmdUtil.get().execPs(deviceUdid))) {
             List<String> results = CmdUtil.get().getCrashLog(deviceUdid);
             for (String s : results) {
                 crashLog = crashLog + s.replace("(AndroidRuntime)", "") + "\n";
@@ -105,28 +139,36 @@ public class PerforMonitor {
         return CmdUtil.get().getAnrLog(deviceUdid);
     }
 
-    public int getPid(String cpu) {
-        if (pid == -1) {
-            try {
-                pid = Integer.valueOf(CmdUtil.get().getWordBetweenBlank(cpu));
-            } catch (Exception e) {
-                pid = -1;
-            }
-        }
-        return pid;
+    private boolean isPsNotExists(String line) {
+        return line == null || line.equals("");
     }
 
-    private int getUid(String cpu) {
-        if (uid == -1) {
-            try {
-                String uidString = cpu.substring(cpu.indexOf("u0_a") + 4);
-                uidString = uidString.substring(0, uidString.indexOf(" "));
-                uid = Integer.valueOf(uidString) + 10000;
-            } catch (Exception e) {
-                uid = -1;
+    private void initPUid() {
+        String line = CmdUtil.get().execPs(deviceUdid);
+        initPUid(line);
+    }
+
+    private void initPUid(String line) {
+        try {
+            if (line == null || line.equals("")) {
+                return;
             }
+//            Log.d(line);
+            String uidString = line.substring(line.indexOf("u0_a") + 4);
+            uidString = uidString.substring(0, uidString.indexOf(" "));
+            uid = Integer.valueOf(uidString) + 10000;
+
+            String pidString = line.substring(line.indexOf(" "));
+            pidString = CmdUtil.get().getWordBetweenBlank(pidString);
+            pid = Integer.valueOf(pidString);
+
+            if (uid != -1 && pid != -1) {
+                Log.d("获取p/u id  " + uid + "  " + pid);
+            }
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            Log.d("获取p/u id" + e.toString());
         }
-        return uid;
     }
 
     private long getTraffic(String deviceUdid, int uid) {

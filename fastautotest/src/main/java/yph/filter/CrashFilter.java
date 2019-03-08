@@ -11,7 +11,7 @@ public class CrashFilter extends AdbFilter {
     @Override
     public boolean filt(String line) {
         if (super.filt(line)) {
-            int pid = perforMonitorTl.get().getPid("");
+            int pid = perforMonitorTl.get().pid;
             if (line.contains("" + pid)) {
                 if (line.contains("at ") || line.contains("Exception:")) {
                     if (line.contains("at android.") || line.contains("at java.") ||

@@ -39,18 +39,18 @@ public class TestRetryListener implements IRetryAnalyzer {
 		if(retryCount != 1 ) return true;
 		String crashLog = perforMonitorTl.get().getCrashLog();
 		if(!crashLog.equals("")){
-			Reporter.log("åº”ç”¨å´©æºƒ(CRASH)ï¼š"+crashLog);
+			Reporter.log("Ó¦ÓÃ±ÀÀ£(CRASH)£º"+crashLog);
 			recoverScene(result);
 			return false;
 		}
 		String anrLog = perforMonitorTl.get().getAnrLog();
 		if(!anrLog.equals("")){
-			Reporter.log("åº”ç”¨æ— å“åº”(ANR)ï¼š"+anrLog);
+			Reporter.log("Ó¦ÓÃÎŞÏìÓ¦(ANR)£º"+anrLog);
 			return false;
 		}
 		ConnectionState connection = androidDriverTl.get().getConnection();
 		if(!connection.isDataEnabled() && !connection.isWiFiEnabled()){
-			Reporter.log("ç½‘ç»œæœªæ‰“å¼€");
+			Reporter.log("ÍøÂçÎ´´ò¿ª(Net Close)");
 			return false;
 		}
 		return true;

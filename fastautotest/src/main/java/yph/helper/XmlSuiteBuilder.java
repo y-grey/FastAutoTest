@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import yph.base.BaseTest;
 import yph.bean.Configure;
 import yph.bean.TestBean;
 
@@ -50,6 +51,9 @@ public class XmlSuiteBuilder {
             Class[] testClasses = testBean.getClasses();
             List<XmlClass> xmlClassListt = new ArrayList<>();
             for (Class testClass : testClasses) {
+                if(!testClass.getSuperclass().equals(BaseTest.class)){
+                    throw new IllegalArgumentException(testClass.getSimpleName() +" should extends BaseTest");
+                }
                 xmlClassListt.add(new XmlClass(testClass));
             }
             XmlTest xmlTest = new XmlTest();

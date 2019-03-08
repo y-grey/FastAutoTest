@@ -60,12 +60,17 @@ public class CmdUtil {
         return results.get(0);
     }
 
+    public int getPlatformVersionSdk(String deviceUdid) {
+        int sdkNum = Integer.parseInt(RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell getprop ro.build.version.sdk", "").get(0));
+        return sdkNum;
+    }
+
     public void installApk(String deviceUdid, String apkPath) {
         RuntimeUtil.exec(adb + " -s " + deviceUdid + " install " + apkPath, "Install App");
     }
 
     public int getVersionCode(String deviceUdid) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys package " + pkgName + " | findstr versionCode", "");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys package " + pkgName + " | findstr versionCode");
         String versionCode = "0";
         if (results.size() > 0) {
             versionCode = results.get(0);
@@ -81,16 +86,46 @@ public class CmdUtil {
     }
 
     public Timer getCpu(String deviceUdid, RuntimeUtil.AsyncInvoke asyncInvoke) {
-        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke,1, CpuFilter.get());
+        return execAsync(adb + " -s " + deviceUdid + " shell top -n 1 -s  cpu|grep " + pkgName, asyncInvoke, 1, CpuFilter.get());
+    }
+
+    public CpuSnapshot getCpu(String deviceUdid , int pid) {
+        try {
+            String sysCpu = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/stat |head -n 1").get(0);
+            String[] cpuInfoArray = sysCpu.split(" ");
+            if (cpuInfoArray.length < 9) {
+                throw new IllegalStateException("cpu info array size must great than 9");
+            }
+            long user = Long.parseLong(cpuInfoArray[2]);
+            long nice = Long.parseLong(cpuInfoArray[3]);
+            long system = Long.parseLong(cpuInfoArray[4]);
+            long idle = Long.parseLong(cpuInfoArray[5]);
+            long ioWait = Long.parseLong(cpuInfoArray[6]);
+            long total = user + nice + system + idle + ioWait
+                    + Long.parseLong(cpuInfoArray[7])
+                    + Long.parseLong(cpuInfoArray[8]);
+            String appCpu = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/" + pid + "/stat |head -n 1").get(0);
+            String[] pidCpuInfoList = appCpu.split(" ");
+            if (pidCpuInfoList.length < 17) {
+                throw new IllegalStateException("pid cpu info array size must great than 17");
+            }
+            long appCpuTime = Long.parseLong(pidCpuInfoList[13])
+                    + Long.parseLong(pidCpuInfoList[14])
+                    + Long.parseLong(pidCpuInfoList[15])//有些不要15，16 待考究
+                    + Long.parseLong(pidCpuInfoList[16]);//有些不要15，16 待考究
+            return new CpuSnapshot(user, system, idle, ioWait, total, appCpuTime);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public long getTraffic(String deviceUdid, int uid) {
         long rcvTraffic = -1, sndTraffic = -1;
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_rcv", "");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_rcv");
         if (!results.isEmpty()) {
             rcvTraffic = Long.parseLong(results.get(0));
         }
-        results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_snd", "");
+        results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /proc/uid_stat/" + uid + "/tcp_snd");
         if (!results.isEmpty()) {
             sndTraffic = Long.parseLong(results.get(0));
         }
@@ -98,7 +133,7 @@ public class CmdUtil {
     }
 
     public int getMem(String deviceUdid) {
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys meminfo " + pkgName + "|grep TOTAL ", "");
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell dumpsys meminfo " + pkgName + "|grep TOTAL ");
         if (results.size() > 0) {
             String mem = results.get(0).replace("TOTAL", "");
             return Integer.valueOf(getWordBetweenBlank(mem)) / 1000;
@@ -117,8 +152,8 @@ public class CmdUtil {
                     process.destroy();
                     timer.cancel();
                 }
-            },500);
-            results.addAll(RuntimeUtil.exec(process, Constant.CHECK_CRASH , new CrashFilter()));
+            }, 500);
+            results.addAll(RuntimeUtil.exec(process, Constant.CHECK_CRASH, new CrashFilter()));
             CmdUtil.get().clearLog(deviceUdid);
         } catch (IOException e) {
             e.printStackTrace();
@@ -127,20 +162,20 @@ public class CmdUtil {
     }
 
     public void clearLog(String deviceUdid) {
-        RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell logcat -c", "");
+        RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell logcat -c");
     }
 
     public String getAnrLog(String deviceUdid) {
         String AnrLog = "";
-        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep -B 1 'Cmd line: " + pkgName +"'", Constant.CHECK_ANR);
+        List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt | grep -B 1 'Cmd line: " + pkgName + "'", Constant.CHECK_ANR);
         if (results.size() > 0) {
-            String time =  results.get(0);
-            time = time.substring(time.indexOf("at")+3,time.lastIndexOf(":")+3);
+            String time = results.get(0);
+            time = time.substring(time.indexOf("at") + 3, time.lastIndexOf(":") + 3);
             long l = TimeUtil.timeSubtract(time);
-            if(l!=-1 && l<2){//2分钟之内的anr
-                results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt", "",new AnrFilter());
-                for(String s : results){
-                    AnrLog = AnrLog+s+"\n";
+            if (l != -1 && l < 2) {//2分钟之内的anr
+                results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell cat /data/anr/traces.txt", "", new AnrFilter());
+                for (String s : results) {
+                    AnrLog = AnrLog + s + "\n";
                 }
             }
         }
@@ -164,9 +199,19 @@ public class CmdUtil {
         return menTem.trim();
     }
 
+    public String execPs(String deviceUdid) {
+        try {
+            List<String> results = RuntimeUtil.exec(adb + " -s " + deviceUdid + " shell ps " + (getPlatformVersionSdk(deviceUdid) > 25 ? "-A " : "") +
+                    "|grep " + pkgName + " |grep -v :");
+            return results.get(0);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public boolean isProcessRunning(String keyMsg) {
         boolean running;
-        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg, "");
+        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg);
         if (results.isEmpty()) {
             running = false;
         } else {
@@ -176,9 +221,10 @@ public class CmdUtil {
     }
 
     public void killProcessIfExist(String keyMsg) {
-        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg, "");
+        List<String> results = RuntimeUtil.exec("cmd.exe /c netstat -ano|findstr " + keyMsg);
         if (!results.isEmpty()) {
-            RuntimeUtil.exec("cmd.exe /c taskkill /f /pid " + results.get(0).substring(results.get(0).lastIndexOf(" ")), "");
+            RuntimeUtil.exec("cmd.exe /c taskkill /f /pid " + results.get(0).substring(results.get(0).lastIndexOf(" ")));
         }
     }
+
 }

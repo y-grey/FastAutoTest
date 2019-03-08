@@ -10,13 +10,13 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.AutomationName;
 import yph.helper.RestartTestHelper;
 import yph.performance.PerforMonitor;
 import yph.utils.Log;
-import yph.utils.SleepUtil;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_ACTIVITY;
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.APP_PACKAGE;
@@ -58,7 +58,7 @@ public class BaseTest {
         caps.setCapability(AUTO_GRANT_PERMISSIONS, true);
         caps.setCapability(DONT_STOP_APP_ON_RESET, true);
         caps.setCapability(NO_SIGN, true);//表示不重签名app在设置为true的情况下
-        if (isLargeThan4d4(platformVersion))
+        if (isLargeThan4d4(platformVersion))//U1会造成cpu升高，U2不会
             caps.setCapability(AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
         addCap(caps);
         AndroidDriver driver = newAndroidDriver(appiumPort, caps);
@@ -112,7 +112,7 @@ public class BaseTest {
     @BeforeClass
     public void findPage() {
         driver = androidDriverTl.get();
-        SleepUtil.s(2000);
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         PageFactory.initElements(driver, this);
     }
 }
